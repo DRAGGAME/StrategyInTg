@@ -19,6 +19,7 @@ async def item_update(user_id: int):
     count_gold_mines = all_about_stone[0][4]
     count_food_ranches = all_about_stone[0][5]
     count_storage = all_about_stone[0][6]
+
     print(f'Количество камня: {count_stone}\n'
           f'Количество золота: {count_gold}\n'
           f'Количество еды: {count_food}\n'
