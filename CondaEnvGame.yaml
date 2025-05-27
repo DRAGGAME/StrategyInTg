@@ -1,0 +1,16 @@
+name: EnvCondaGame
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip>=21.0.1
+  - setuptools>=51.00.0
+  - python>=3.10.0
+  - asyncpg
+  - apscheduler
+  - requests
+  - pip:
+    - python-dotenv
+    - aiogram>3.1.0
+
+prefix: c:/Users/schowm/anaconda3/envs/EnvCondaGame
