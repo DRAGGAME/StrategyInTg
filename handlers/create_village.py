@@ -1,13 +1,17 @@
+import logging
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
+from apscheduler.jobstores.base import ConflictingIdError
+from apscheduler.schedulers import SchedulerAlreadyRunningError
 from apscheduler.triggers.interval import IntervalTrigger
 
 from database.db import PostgresBase
 from kb.fabirc_kb import KeyboardFactory
-from shedulers import item_update
+from shedulers.item_update import item_update
 
 from shedulers.scheduler_object import item_schedulers
 
@@ -81,22 +85,36 @@ async def confirmation_account_name(message: Message, state: FSMContext):
     data_account_name = await state.get_value('account_name')
     data_village_name = await state.get_value('village_name')
 
-    user_id = message.from_user.id
+    user_id = message.chat.id
 
     await sql_for_create_village.insert_default(user_id, data_account_name, data_village_name)
 
-    item_schedulers.add_job(func=item_update,
-                                   trigger=IntervalTrigger(seconds=20),
-                                   args=(int(user_id, )),
-                                   id=f'farm{user_id}')
-    item_schedulers.start()
+    try:
+        item_schedulers.add_job(func=item_update,
+                                       trigger=IntervalTrigger(seconds=20),
+                                       args=(int(user_id), ),
+                                       id=f'farm{user_id}')
 
+    except ConflictingIdError:
+        item_schedulers.remove_job(job_id=f'farm{user_id}')
+        item_schedulers.add_job(func=item_update,
+                                       trigger=IntervalTrigger(seconds=20),
+                                       args=(int(user_id), ),
+                                       id=f'farm{user_id}')
+    try:
+        item_schedulers.start()
+
+    except SchedulerAlreadyRunningError:
+        logging.warn(f'Уже всё запущено')
+
+    inli = await kb_create_village.builder_inline_choice_category()
     await state.clear()
     await sql_for_create_village.connect_close()
     await message.answer(f'Выбор подтверждён, аккаунт создан\n'
                          f'Имя аккаунта: {data_account_name}\n'
-                         f'Имя деревни: {data_village_name}',
-                         reply_markup=ReplyKeyboardRemove())
+                         f'Имя деревни: {data_village_name}\n\n'
+                         f'Выберите, куда вы хотите зайти:',
+                         reply_markup=inli)
 
 @router_create.message(CreateAccount.name_villages, F.text.lower().contains('нет'))
 async def confirmation_account_name(message: Message):

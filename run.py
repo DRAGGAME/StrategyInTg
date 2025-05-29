@@ -9,7 +9,7 @@ from aiogram import Dispatcher
 from apscheduler.triggers.interval import IntervalTrigger
 
 from config import bot
-from handlers import create_village
+from handlers import create_village, handler_choice, build_handler
 
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(asctime)s] #%(levelname)-4s %(filename)s:'
@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 dp = Dispatcher()
-dp.include_router(create_village.router_create)
+dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router)
 
 async def main():
     try:

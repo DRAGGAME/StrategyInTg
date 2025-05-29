@@ -1,40 +1,25 @@
+from sys import prefix
 from typing import Union
 
+from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 
 
+class InlineChoiceGame(CallbackData, prefix='game_change'):
+    category_id: str
+
+
+class InlineChoiceMenu(CallbackData, prefix='regime_change'):
+    regime: str
+
+
 class KeyboardFactory:
+
     def __init__(self):
         self.builder_reply = None
 
         self.builder_inline = None
-        self.back_from_butt = InlineKeyboardButton(
-            text='Назад',
-            callback_data='back_from_butt'
-        )
-
-        self.delete_from_butt = InlineKeyboardButton(
-            text='УДАЛИТЬ ФАЙЛ',
-            callback_data='delete_file'
-        )
-
-        self.another_action_butt = InlineKeyboardButton(
-            text='Выбрать другое действие',
-            callback_data='action'
-        )
-
-        self.cancel_from_butt = InlineKeyboardButton(
-            text='Выбрать другой предмет',
-            callback_data='cancel'
-        )
-
-        self.next_from_butt = InlineKeyboardButton(
-            text='Вперёд',
-            callback_data='next_from_butt'
-        )
-
-
 
     async def create_builder_reply(self) -> None:
         self.builder_reply = ReplyKeyboardBuilder()
@@ -67,39 +52,70 @@ class KeyboardFactory:
                                                 input_field_placeholder='Нажмите кнопку в случае необходимости')
         return keyboard_cancel
 
-    async def builder_inline_montage(self,
-                                     next_boot: bool = False,
-                                     back_boot: bool = False,
-                                     cancel_bott: bool = False,
-                                     action_boot: bool = False,
-                                     delete_boot: bool = False
-                                     ) -> None:
+    async def builder_inline_choice_category(self):
+        button_game = InlineKeyboardButton(
+            text='Зайти в игру',
+            callback_data=InlineChoiceGame(
+                category_id='run_in_game',
+            ).pack()
+        )
+
+        button_settings = InlineKeyboardButton(
+            text='Настройки',
+            callback_data=InlineChoiceGame(
+                category_id='settings',
+            ).pack()
+        )
+
+        button_del = InlineKeyboardButton(
+            text='Удалить',
+            callback_data=InlineChoiceGame(
+                category_id='del',
+            ).pack()
+        )
 
         await self.create_builder_inline()
 
-        if back_boot is True:
-            self.builder_inline.add(self.back_from_butt)
-
-        if next_boot is True:
-            self.builder_inline.add(self.next_from_butt)
-
-        if cancel_bott is True:
-            self.builder_inline.add(self.cancel_from_butt)
-
-        if action_boot is True:
-            self.builder_inline.add(self.another_action_butt)
-
-        if delete_boot is True:
-            self.builder_inline.add(self.delete_from_butt)
-
-        self.builder_inline.adjust(2, 1)
+        self.builder_inline.add(button_game)
+        self.builder_inline.add(button_settings)
+        self.builder_inline.add(button_del)
 
         return self.builder_inline.as_markup()
 
+    async def builder_inline_choice_menu(self):
 
+        button_upgrade = InlineKeyboardButton(
+            text='Улучшения',
+            callback_data=InlineChoiceMenu(
+                regime='upgrade',
+            ).pack()
+        )
 
+        button_plan = InlineKeyboardButton(
+            text='Статистика деревни',
+            callback_data=InlineChoiceMenu(
+                regime='stats',
+            ).pack()
+        )
 
+        button_building = InlineKeyboardButton(
+            text='Строительство',
+            callback_data=InlineChoiceMenu(
+                regime='build',
+            ).pack()
+        )
 
+        button_cancel = InlineKeyboardButton(
+            text='Назад',
+            callback_data=InlineChoiceMenu(
+                regime='cancel',
+            ).pack()
+        )
 
+        await self.create_builder_inline()
 
+        self.builder_inline.add(button_building, button_upgrade)
+        self.builder_inline.row(button_plan)
+        self.builder_inline.row(button_cancel)
 
+        return self.builder_inline.as_markup()
