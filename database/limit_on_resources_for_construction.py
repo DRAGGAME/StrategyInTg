@@ -19,16 +19,16 @@ class ResourcesForConstruct(PostgresBase):
 
     async def limit_resources_for_construct(self):
         await self.execute_query("""INSERT INTO limit_for_construction (type_construction, limit_stone, limit_gold, limit_village)
-         VALUES ($1, $2, $3, $4);""", ('gold_mines', 13, 5, 4))
+         VALUES ($1, $2, $3, $4);""", ('gold_mines', 27, 5, 4))
 
         await self.execute_query("""INSERT INTO limit_for_construction (type_construction, limit_stone, limit_gold, limit_village)
-         VALUES ($1, $2, $3, $4);""", ('stone_mines', 47, 12, 4))
+         VALUES ($1, $2, $3, $4);""", ('stone_mines', 31, 12, 4))
 
         await self.execute_query("""INSERT INTO limit_for_construction (type_construction, limit_stone, limit_gold, limit_village, limit_food)
-         VALUES ($1, $2, $3, $4, $5);""", ('ranches', 33, 6, 8, 6))
+         VALUES ($1, $2, $3, $4, $5);""", ('ranches', 20, 6, 8, 6))
 
         await self.execute_query("""INSERT INTO limit_for_construction (type_construction, limit_stone, limit_gold)
-         VALUES ($1, $2, $3);""", ('homes', 50, 20))
+         VALUES ($1, $2, $3);""", ('homes', 37, 20))
 
 
 if __name__ == "__main__":

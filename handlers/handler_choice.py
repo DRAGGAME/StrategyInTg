@@ -1,12 +1,10 @@
 from aiogram import Router, F
-from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery
-from pyexpat.errors import messages
 
 from database.db import PostgresBase
 from kb.fabirc_kb import InlineChoiceGame, InlineChoiceMenu
 from kb.kb_menu import KbMenu, InlineChoiceBuild
-from shedulers.scheduler_object import item_schedulers
+from shedulers.update_resources.scheduler_object import item_schedulers
 
 sqlbase_choice = PostgresBase()
 router_choice = Router()
@@ -16,7 +14,7 @@ kb_menus = KbMenu()
 async def delete_for_acc(callback: CallbackQuery):
     user_id = callback.message.chat.id
     await sqlbase_choice.connect()
-    await sqlbase_choice.execute_query("""DELETE FROM user_and_villagers_data WHERE user_id = $1""", (str(user_id),))
+    await sqlbase_choice.execute_query("""DELETE FROM user_and_villagers_data WHERE user_id = $1""", (str(user_id), ))
     item_schedulers.remove_job(job_id=f'farm{user_id}')
     await callback.message.edit_text('Учётная запись успешно удалена! Введите /start')
 

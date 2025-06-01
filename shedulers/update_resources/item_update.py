@@ -1,7 +1,7 @@
 import logging
 from config import bot
 from database.db import PostgresBase
-from shedulers.scheduler_object import item_schedulers
+from shedulers.update_resources.scheduler_object import item_schedulers
 
 
 async def item_update(user_id: int):
@@ -12,7 +12,7 @@ async def item_update(user_id: int):
     try:
         user_id = str(user_id)
         all_about_resources = await sqlbase_for_stone.execute_query("""SELECT stone, gold, food, stone_mines, gold_mines,
-                                                                    ranches, storages, level
+                                                                    ranches, storages, level, villagers
                                                                     FROM user_and_villagers_data WHERE user_id = $1""",
                                                             (user_id, ))
         limit = await sqlbase_for_stone.execute_query("""SELECT count_storage FROM table_limits 

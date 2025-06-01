@@ -2,9 +2,11 @@ import asyncio
 import logging
 
 from database.db import PostgresBase
-from shedulers.item_update import item_update
+from shedulers.manns_update.scheduler_object import man_scheduler
+from shedulers.manns_update.update_mans import update_man
+from shedulers.update_resources.item_update import item_update
 
-from shedulers.scheduler_object import item_schedulers
+from shedulers.update_resources.scheduler_object import item_schedulers
 from aiogram import Dispatcher
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -30,6 +32,9 @@ async def main():
                                         trigger=IntervalTrigger(seconds=20),
                                         args=(int(user_id[0]), ),
                                         id=f'farm{user_id[0]}')
+                man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
+                                      args=(int(user_id[0]), ), id=f'farm_man{user_id[0]}')
+            man_scheduler.start()
             item_schedulers.start()
         await sqlbase_run.connect_close()
 
@@ -39,6 +44,7 @@ async def main():
 
     finally:
         item_schedulers.shutdown(wait=False)
+        man_scheduler.shutdown(wait=False)
 
 if __name__ == '__main__':
     asyncio.run(main())

@@ -9,8 +9,10 @@ dependencies:
   - asyncpg
   - apscheduler
   - requests
+  - pytz
+  - Faker
   - pip:
     - python-dotenv
     - aiogram>3.1.0
-
+    -
 prefix: c:/Users/schowm/anaconda3/envs/EnvCondaGame

@@ -11,9 +11,11 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from database.db import PostgresBase
 from kb.fabirc_kb import KeyboardFactory
-from shedulers.item_update import item_update
+from shedulers.manns_update.scheduler_object import man_scheduler
+from shedulers.manns_update.update_mans import update_man
+from shedulers.update_resources.item_update import item_update
 
-from shedulers.scheduler_object import item_schedulers
+from shedulers.update_resources.scheduler_object import item_schedulers
 
 
 router_create = Router()
@@ -94,6 +96,8 @@ async def confirmation_account_name(message: Message, state: FSMContext):
                                        trigger=IntervalTrigger(seconds=20),
                                        args=(int(user_id), ),
                                        id=f'farm{user_id}')
+        man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
+                              args=(int(user_id)), id=f'farm_man{user_id}')
 
     except ConflictingIdError:
         item_schedulers.remove_job(job_id=f'farm{user_id}')
@@ -101,6 +105,8 @@ async def confirmation_account_name(message: Message, state: FSMContext):
                                        trigger=IntervalTrigger(seconds=20),
                                        args=(int(user_id), ),
                                        id=f'farm{user_id}')
+        man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
+                              args=(int(user_id)), id=f'farm_man{user_id}')
     try:
         item_schedulers.start()
 

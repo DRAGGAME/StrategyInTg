@@ -1,4 +1,3 @@
-from sys import prefix
 from typing import Union
 
 from aiogram.filters.callback_data import CallbackData
@@ -14,12 +13,26 @@ class InlineChoiceMenu(CallbackData, prefix='regime_change'):
     regime: str
 
 
+class InlineChoiceBuild(CallbackData, prefix='build_change'):
+    construction: str
+    # phrase: str
+
+
+
 class KeyboardFactory:
 
     def __init__(self):
         self.builder_reply = None
 
         self.builder_inline = None
+
+        self.button_add_man = InlineKeyboardButton(
+            text='Добавить человека',
+            callback_data=InlineChoiceBuild(
+                construction='add_man',
+                #                 phrase='0'
+            ).pack()
+        )
 
     async def create_builder_reply(self) -> None:
         self.builder_reply = ReplyKeyboardBuilder()
@@ -52,7 +65,8 @@ class KeyboardFactory:
                                                 input_field_placeholder='Нажмите кнопку в случае необходимости')
         return keyboard_cancel
 
-    async def builder_inline_choice_category(self):
+    async def builder_inline_choice_category(self, add_man=False):
+
         button_game = InlineKeyboardButton(
             text='Зайти в игру',
             callback_data=InlineChoiceGame(
@@ -80,9 +94,12 @@ class KeyboardFactory:
         self.builder_inline.add(button_settings)
         self.builder_inline.add(button_del)
 
+        if add_man:
+            self.builder_inline.add(self.button_add_man)
+
         return self.builder_inline.as_markup()
 
-    async def builder_inline_choice_menu(self):
+    async def builder_inline_choice_menu(self, add_man=False):
 
         button_upgrade = InlineKeyboardButton(
             text='Улучшения',
@@ -117,5 +134,8 @@ class KeyboardFactory:
         self.builder_inline.add(button_building, button_upgrade)
         self.builder_inline.row(button_plan)
         self.builder_inline.row(button_cancel)
+
+        if add_man:
+            self.builder_inline.add(self.button_add_man)
 
         return self.builder_inline.as_markup()

@@ -57,13 +57,13 @@ class PostgresBase:
         Village_name TEXT NOT NULL,
         Level INTEGER DEFAULT 1,
         Gold INTEGER DEFAULT 50,
-        Stone INTEGER DEFAULT 20,
+        Stone INTEGER DEFAULT 60,
         Food INTEGER DEFAULT 40,
-        Villagers INTEGER DEFAULT 18,
-        Villagers_busy INTEGER DEFAULT 0,        
+        Villagers INTEGER DEFAULT 10,
+        Villagers_busy INTEGER DEFAULT 8,        
         Homes INTEGER DEFAULT 9,
-        Stone_mines INTEGER DEFAULT 0,
-        Gold_mines INTEGER DEFAULT 0,
+        Stone_mines INTEGER DEFAULT 1,
+        Gold_mines INTEGER DEFAULT 1,
         Ranches INTEGER DEFAULT 0,
         Storages INTEGER DEFAULT 1
         );

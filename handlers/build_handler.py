@@ -2,7 +2,6 @@ from aiogram import Router, F
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery
-from pyexpat.errors import messages
 
 from database.db import PostgresBase
 from function.update_resources import update_res
@@ -19,24 +18,29 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     decision, first_count_gold_mines = await update_res(sqlbase_build, 'gold_mines', user_id)
     try:
         kb = await build_kb_menu.inline_regime_build()
+        if decision == 'count_error':
+            await callback.message.edit_text(
+                f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_gold_mines}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
 
-        if decision == 'village_error':
-            await callback.message.edit_text(f'Не хватает жителей для обеспечения работы здания. \nОбщее количество: {first_count_gold_mines}'
+        elif decision == 'village_error':
+            await callback.message.edit_text(f'Не хватает жителей для обеспечения работы здания. \nОбщее количество построек: {first_count_gold_mines}'
                                              f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'stone_error':
-            await callback.message.edit_text(f'Не хватает камня для строительства здания. \nОбщее количество: {first_count_gold_mines}'
+            await callback.message.edit_text(f'Не хватает камня для строительства здания. \nОбщее количество построек: {first_count_gold_mines}'
                                              f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'gold_error':
-            await callback.message.edit_text(f'Не хватает золота для строительства здания. \nОбщее количество: {first_count_gold_mines}'
+            await callback.message.edit_text(f'Не хватает золота для строительства здания. \nОбщее количество построек: {first_count_gold_mines}'
                                              f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         else:
-            await callback.message.edit_text(f'Вы построили золотую шахту. \nОбщее количество: {first_count_gold_mines}'
+            await callback.message.edit_text(f'Вы построили золотую шахту. \nОбщее количество построек: {first_count_gold_mines}'
                                              f'\nВыберите, что вы хотите построить', reply_markup=kb)
     except TelegramBadRequest:
         pass
@@ -53,27 +57,33 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     try:
         kb = await build_kb_menu.inline_regime_build()
 
-        if decision == 'village_error':
+        if decision == 'count_error':
             await callback.message.edit_text(
-                f'Не хватает жителей для обеспечения работы здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_stone_mines}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'village_error':
+            await callback.message.edit_text(
+                f'Не хватает жителей для обеспечения работы здания. \nОбщее количество построек: {first_count_stone_mines}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'stone_error':
             await callback.message.edit_text(
-                f'Не хватает камня для строительства здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Не хватает камня для строительства здания. \nОбщее количество построек: {first_count_stone_mines}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'gold_error':
             await callback.message.edit_text(
-                f'Не хватает золота для строительства здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Не хватает золота для строительства здания. \nОбщее количество построек: {first_count_stone_mines}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         else:
             await callback.message.edit_text(
-                f'Вы построили каменную шахту. \nОбщее количество: {first_count_stone_mines}'
+                f'Вы построили каменную шахту. \nОбщее количество построек: {first_count_stone_mines}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
     except TelegramBadRequest:
         pass
@@ -86,31 +96,43 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
-    decision, first_count_stone_mines = await update_res(sqlbase_build, 'stone_mines', user_id)
+    decision, first_count_ranch = await update_res(sqlbase_build, 'ranches', user_id)
     try:
         kb = await build_kb_menu.inline_regime_build()
-
-        if decision == 'village_error':
+        if decision == 'count_error':
             await callback.message.edit_text(
-                f'Не хватает жителей для обеспечения работы здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'village_error':
+            await callback.message.edit_text(
+                f'Не хватает жителей для обеспечения работы здания. \nОбщее количество построек: {first_count_ranch}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'stone_error':
             await callback.message.edit_text(
-                f'Не хватает камня для строительства здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Не хватает камня для строительства здания. \nОбщее количество построек: {first_count_ranch}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         elif decision == 'gold_error':
             await callback.message.edit_text(
-                f'Не хватает золота для строительства здания. \nОбщее количество: {first_count_stone_mines}'
+                f'Не хватает золота для строительства здания. \nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'food_error':
+
+            await callback.message.edit_text(
+                f'Не хватает еды для строительства здания. \nОбщее количество построек : {first_count_ranch}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
             return
 
         else:
             await callback.message.edit_text(
-                f'Вы построили каменную шахту. \nОбщее количество: {first_count_stone_mines}'
+                f'Вы построили ферму. \nОбщее количество построек: {first_count_ranch}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
     except TelegramBadRequest:
         pass
@@ -119,10 +141,51 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
 
     await callback.answer()
 
-
 @build_router.callback_query(InlineChoiceBuild.filter(F.construction=='home'))
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
-    kb = await build_kb_menu.inline_regime_build()
+    await sqlbase_build.connect()
+    user_id = callback.message.chat.id
+    decision, first_count_ranch = await update_res(sqlbase_build, 'homes', user_id)
+    try:
+        kb = await build_kb_menu.inline_regime_build()
+        if decision == 'count_error':
+            await callback.message.edit_text(
+                f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
 
-    await callback.message.edit_text(f'Вы построили дом.\n\nВыберите, что вы хотите построить', reply_markup=kb)
+        elif decision == 'village_error':
+            await callback.message.edit_text(
+                f'Не хватает жителей для обеспечения работы здания. \nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'stone_error':
+            await callback.message.edit_text(
+                f'Не хватает камня для строительства здания. \nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'gold_error':
+            await callback.message.edit_text(
+                f'Не хватает золота для строительства здания. \nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'food_error':
+
+            await callback.message.edit_text(
+                f'Не хватает еды для строительства здания. \nОбщее количество построек : {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        else:
+            await callback.message.edit_text(
+                f'Вы построили дом. \nОбщее количество построек: {first_count_ranch}'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+    except TelegramBadRequest:
+        pass
+
+    await sqlbase_build.connect_close()
+
     await callback.answer()
