@@ -2,7 +2,7 @@ import datetime
 import pytz
 import random
 
-async def random_time(min_increment=30, max_range_hours=15):
+async def random_time(min_increment=5, max_range_hours=0):
     moscow_timezone = pytz.timezone('Europe/Moscow')
     now = datetime.datetime.now(moscow_timezone)
 
@@ -14,6 +14,6 @@ async def random_time(min_increment=30, max_range_hours=15):
     random_minute = random.randint(0, available_minutes)
 
     target_time = lower_bound + datetime.timedelta(minutes=random_minute)
-
+    print(target_time)
     return target_time.strftime('%Y-%m-%d %H:%M:%S')
 

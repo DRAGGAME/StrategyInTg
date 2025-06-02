@@ -56,11 +56,13 @@ class PostgresBase:
         First_name TEXT NOT NULL,
         Village_name TEXT NOT NULL,
         Level INTEGER DEFAULT 1,
+        Message_id TEXT NOT NULL,
         Gold INTEGER DEFAULT 50,
         Stone INTEGER DEFAULT 60,
         Food INTEGER DEFAULT 40,
         Villagers INTEGER DEFAULT 10,
-        Villagers_busy INTEGER DEFAULT 8,        
+        Villagers_busy INTEGER DEFAULT 8,
+        count_new_villagers INTEGER DEFAULT 0,  
         Homes INTEGER DEFAULT 9,
         Stone_mines INTEGER DEFAULT 1,
         Gold_mines INTEGER DEFAULT 1,
@@ -83,13 +85,14 @@ class PostgresBase:
                                 count_storage INTEGER DEFAULT 100);
                                 """)
 
-    async def insert_default(self, user_id: int, first_name: str, village_name: str) -> None:
+    async def insert_default(self, user_id: int, first_name: str, village_name: str, message_id: int) -> None:
+        message_id = str(message_id)
         user_id = str(user_id)
         await self.execute_query(
         """
-        INSERT INTO user_and_villagers_data (user_id, first_name, village_name) 
-        VALUES ($1, $2, $3)
-        """, (user_id, first_name, village_name))
+        INSERT INTO user_and_villagers_data (user_id, first_name, village_name, message_id) 
+        VALUES ($1, $2, $3, $4)
+        """, (user_id, first_name, village_name, message_id))
 
     async def update_user_data(self, count_stone, count_gold: int, count_villages: int, count_village_busy: int, count_mine: int, count_food: int,
                                type_build: str, user_id: int):

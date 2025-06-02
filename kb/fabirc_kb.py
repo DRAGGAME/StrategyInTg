@@ -28,8 +28,8 @@ class KeyboardFactory:
 
         self.button_add_man = InlineKeyboardButton(
             text='Добавить человека',
-            callback_data=InlineChoiceBuild(
-                construction='add_man',
+            callback_data=InlineChoiceMenu(
+                regime='add_man',
                 #                 phrase='0'
             ).pack()
         )
@@ -65,7 +65,7 @@ class KeyboardFactory:
                                                 input_field_placeholder='Нажмите кнопку в случае необходимости')
         return keyboard_cancel
 
-    async def builder_inline_choice_category(self, add_man=False):
+    async def builder_inline_choice_category(self):
 
         button_game = InlineKeyboardButton(
             text='Зайти в игру',
@@ -93,9 +93,6 @@ class KeyboardFactory:
         self.builder_inline.add(button_game)
         self.builder_inline.add(button_settings)
         self.builder_inline.add(button_del)
-
-        if add_man:
-            self.builder_inline.add(self.button_add_man)
 
         return self.builder_inline.as_markup()
 
@@ -133,9 +130,11 @@ class KeyboardFactory:
 
         self.builder_inline.add(button_building, button_upgrade)
         self.builder_inline.row(button_plan)
-        self.builder_inline.row(button_cancel)
 
         if add_man:
-            self.builder_inline.add(self.button_add_man)
+            self.builder_inline.row(self.button_add_man)
+
+        self.builder_inline.row(button_cancel)
+
 
         return self.builder_inline.as_markup()

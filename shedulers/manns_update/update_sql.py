@@ -15,27 +15,27 @@ async def quantity_update(user_id: int, bot: Bot):
     await sqlbase_for_quantity.connect()
 
 
-    user_data = await sqlbase_for_quantity.execute_query("""SELECT villagers FROM user_and_villagers_data WHERE user_id = $1""",
+    user_data = await sqlbase_for_quantity.execute_query("""SELECT message_id, count_new_villagers FROM user_and_villagers_data WHERE user_id = $1""",
                                     (user_id, ))
 
-    count_villagers = user_data[0][0]
-    first_count_villagers = count_villagers + 1
+    msg_id = user_data[0][0]
+    count_new_villagers = user_data[0][1]
+    first_count_new_villagers = count_new_villagers + 1
 
-    await sqlbase_for_quantity.execute_query("""UPDATE user_and_villagers_data SET villagers = $1 WHERE user_id = $2""",
-                                             (first_count_villagers, user_id))
+    await sqlbase_for_quantity.execute_query("""UPDATE user_and_villagers_data SET count_new_villagers = $1 WHERE user_id = $2""",
+                                             (first_count_new_villagers, user_id))
 
     for number_scheduler in range(6):
         truth_check = man_scheduler.get_job(job_id=f'{user_id}_{number_scheduler+1}')
         if truth_check:
             count += 1
-    try:
-        if count > 1:
-            await bot.edit_message_text(chat_id=user_id, text=f'В ваше поселение пришли люди({count}). Вы можете их принять или выгнать',
-                                        reply_markup=kb)
-        else:
-            await bot.edit_message_text(chat_id=user_id, text='В ваше поселение пришёл человек. Вы можете его принять или выгнать',
-                                        reply_markup=kb)
-    except TelegramBadRequest:
-        pass
+    if count > 1:
+        await bot.edit_message_text(chat_id=user_id, text=f'В ваше поселение пришли люди({count}). Вы можете их принять или выгнать',
+                                    message_id=msg_id,
+                                    reply_markup=kb)
+    else:
+        await bot.edit_message_text(chat_id=user_id, text='В ваше поселение пришёл человек. Вы можете его принять или выгнать',
+                                    message_id=msg_id,
+                                    reply_markup=kb)
 
     await sqlbase_for_quantity.connect_close()

@@ -51,9 +51,10 @@ class KbMenu(KeyboardFactory):
         self.builder_inline.add(create_ranch, create_home)
         self.builder_inline.row(create_gold_mine)
         self.builder_inline.row(create_stone_mine)
-        self.builder_inline.row(button_cancel)
 
         if add_man:
-            self.builder_inline.add(self.button_add_man)
+            self.builder_inline.row(self.button_add_man)
+
+        self.builder_inline.row(button_cancel)
 
         return self.builder_inline.as_markup()

@@ -49,9 +49,8 @@ async def create_account(message: Message, state: FSMContext):
 
     await state.set_state(CreateAccount.account_name)
 
-    await message.answer('Давайте создадим игровой аккаунт!\n' 
-                         'Введите имя аккаунта или выберите готовое: ',
-                         reply_markup=account_kb) # Предлагаем пользователю использовать для названия аккаунта, своё имя
+    await message.answer(text='Давайте создадим игровой аккаунт!\n' 
+                         'Введите имя аккаунта или выберите готовое: ', reply_markup=account_kb) # Предлагаем пользователю использовать для названия аккаунта, своё имя
 
 @router_create.message(CreateAccount.account_name, F.text.lower().contains('да'))
 async def confirmation_account_name(message: Message, state: FSMContext):
@@ -89,18 +88,17 @@ async def confirmation_account_name(message: Message, state: FSMContext):
 
     user_id = message.chat.id
 
-    await sql_for_create_village.insert_default(user_id, data_account_name, data_village_name)
-
     try:
         item_schedulers.add_job(func=item_update,
                                        trigger=IntervalTrigger(seconds=20),
                                        args=(int(user_id), ),
                                        id=f'farm{user_id}')
         man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
-                              args=(int(user_id)), id=f'farm_man{user_id}')
+                              args=[int(user_id)], id=f'farm_man{user_id}')
 
     except ConflictingIdError:
         item_schedulers.remove_job(job_id=f'farm{user_id}')
+        man_scheduler.remove_job(job_id=f'farm_man{user_id}')
         item_schedulers.add_job(func=item_update,
                                        trigger=IntervalTrigger(seconds=20),
                                        args=(int(user_id), ),
@@ -114,13 +112,16 @@ async def confirmation_account_name(message: Message, state: FSMContext):
         logging.warn(f'Уже всё запущено')
 
     inli = await kb_create_village.builder_inline_choice_category()
-    await state.clear()
-    await sql_for_create_village.connect_close()
-    await message.answer(f'Выбор подтверждён, аккаунт создан\n'
+    msg = await message.answer(f'Выбор подтверждён, аккаунт создан\n'
                          f'Имя аккаунта: {data_account_name}\n'
                          f'Имя деревни: {data_village_name}\n\n'
                          f'Выберите, куда вы хотите зайти:',
                          reply_markup=inli)
+    a = msg.text
+    print(a)
+    await sql_for_create_village.insert_default(user_id, data_account_name, data_village_name, msg.message_id)
+    await state.clear()
+    await sql_for_create_village.connect_close()
 
 @router_create.message(CreateAccount.name_villages, F.text.lower().contains('нет'))
 async def confirmation_account_name(message: Message):
