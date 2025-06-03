@@ -15,9 +15,26 @@ async def item_update(user_id: int):
                                                                     ranches, storages, level, villagers
                                                                     FROM user_and_villagers_data WHERE user_id = $1""",
                                                             (user_id, ))
+        count_for_level = await sqlbase_for_stone.execute_query("""SELECT count(*) FROM table_limits;""")
+        level = int(all_about_resources[0][-2])
+        for multiplication in range(count_for_level[0][0] + 1, 1, -1):
+
+            if level >= multiplication * 10 and count_for_level[0][0] >= multiplication:
+                level = multiplication * 10
+                break
+            elif level < 10:
+                level = 1
+                break
+
+
         limit = await sqlbase_for_stone.execute_query("""SELECT count_storage FROM table_limits 
                                                                 WHERE level = $1""",
-                                                                (all_about_resources[0][-1], ))
+                                                                (level, ))
+        if limit:
+            pass
+        else:
+            return
+
         limit_count_storage = limit[0][0]
 
         count_stone = all_about_resources[0][0]

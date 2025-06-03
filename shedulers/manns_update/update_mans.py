@@ -17,10 +17,25 @@ async def update_man(user_id: int):
                                     (str(user_id), ))
 
     all_villagers = user_data[0][0] + user_data[0][1] + user_data[0][2]
-    level = user_data[0][-1]
+
+    level = int(user_data[0][-1])
+
+    count_for_level = await sqlbase_man.execute_query("""SELECT count(*) FROM table_limits;""")
+
+    for multiplication in range(count_for_level[0][0] + 1, 1, -1):
+        if level >= multiplication * 10 and count_for_level[0][0] >= multiplication:
+            level = multiplication * 10
+            break
+        elif level < 10:
+            level = 1
+            break
 
     limit_villages = await sqlbase_man.execute_query("""SELECT villages FROM table_limits WHERE level = $1""",
                                     (level, ))
+    if limit_villages:
+        pass
+    else:
+        return
 
     first_no_villagers = limit_villages[0][0] - all_villagers
     for number_scheduler in range(6):
@@ -30,6 +45,7 @@ async def update_man(user_id: int):
 
     if count >= 6:
         pass
+
     if first_no_villagers == 0:
 
         pass

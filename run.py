@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from database.db import PostgresBase
+from handlers.handler_add_man import router_add_man
 from shedulers.manns_update.scheduler_object import man_scheduler
 from shedulers.manns_update.update_mans import update_man
 from shedulers.update_resources.item_update import item_update
@@ -19,7 +20,7 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 dp = Dispatcher()
-dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router)
+dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router, router_add_man)
 
 async def main():
     try:

@@ -117,8 +117,6 @@ async def confirmation_account_name(message: Message, state: FSMContext):
                          f'Имя деревни: {data_village_name}\n\n'
                          f'Выберите, куда вы хотите зайти:',
                          reply_markup=inli)
-    a = msg.text
-    print(a)
     await sql_for_create_village.insert_default(user_id, data_account_name, data_village_name, msg.message_id)
     await state.clear()
     await sql_for_create_village.connect_close()

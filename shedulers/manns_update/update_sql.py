@@ -10,7 +10,7 @@ async def quantity_update(user_id: int, bot: Bot):
     count = 0
     sqlbase_for_quantity = PostgresBase()
     kb_man_update = KbMenu()
-    kb = await kb_man_update.inline_regime_build(True)
+    kb = await kb_man_update.builder_inline_choice_menu(True)
     user_id = str(user_id)
     await sqlbase_for_quantity.connect()
 
@@ -22,9 +22,9 @@ async def quantity_update(user_id: int, bot: Bot):
     count_new_villagers = user_data[0][1]
     first_count_new_villagers = count_new_villagers + 1
 
+
     await sqlbase_for_quantity.execute_query("""UPDATE user_and_villagers_data SET count_new_villagers = $1 WHERE user_id = $2""",
                                              (first_count_new_villagers, user_id))
-
     for number_scheduler in range(6):
         truth_check = man_scheduler.get_job(job_id=f'{user_id}_{number_scheduler+1}')
         if truth_check:
