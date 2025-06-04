@@ -16,6 +16,8 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
     decision, first_count_gold_mines = await update_res(sqlbase_build, 'gold_mines', user_id)
+    await sqlbase_build.connect_close()
+
     try:
         kb = await build_kb_menu.inline_regime_build()
         if decision == 'count_error':
@@ -54,6 +56,8 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
     decision, first_count_stone_mines = await update_res(sqlbase_build, "stone_mines", user_id)
+    await sqlbase_build.connect_close()
+
     try:
         kb = await build_kb_menu.inline_regime_build()
 
@@ -88,8 +92,6 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     except TelegramBadRequest:
         pass
 
-    await sqlbase_build.connect_close()
-
     await callback.answer()
 
 @build_router.callback_query(InlineChoiceBuild.filter(F.construction=='ranch'))
@@ -97,6 +99,8 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
     decision, first_count_ranch = await update_res(sqlbase_build, 'ranches', user_id)
+
+    await sqlbase_build.connect_close()
     try:
         kb = await build_kb_menu.inline_regime_build()
         if decision == 'count_error':
@@ -134,10 +138,9 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
             await callback.message.edit_text(
                 f'Вы построили ферму. \nОбщее количество построек: {first_count_ranch}'
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
+
     except TelegramBadRequest:
         pass
-
-    await sqlbase_build.connect_close()
 
     await callback.answer()
 
@@ -146,6 +149,8 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
     decision, first_count_ranch = await update_res(sqlbase_build, 'homes', user_id)
+    await sqlbase_build.connect_close()
+
     try:
         kb = await build_kb_menu.inline_regime_build()
         if decision == 'count_error':
@@ -185,7 +190,5 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
                 f'\nВыберите, что вы хотите построить', reply_markup=kb)
     except TelegramBadRequest:
         pass
-
-    await sqlbase_build.connect_close()
 
     await callback.answer()

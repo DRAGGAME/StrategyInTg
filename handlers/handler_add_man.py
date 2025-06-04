@@ -60,10 +60,11 @@ async def man_confirm(callback: CallbackQuery, state: FSMContext):
     await sqlbase_add_man.connect()
 
     user_id = callback.message.chat.id
-
     count_new_villagers = 0
+
     await sqlbase_add_man.execute_query("""UPDATE user_and_villagers_data SET count_new_villagers = $1
      WHERE user_id = $2 ;""", (count_new_villagers, str(user_id)))
+
     await state.clear()
     await callback.answer('Вы отказали остальным людям')
 

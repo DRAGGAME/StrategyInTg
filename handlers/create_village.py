@@ -91,7 +91,7 @@ async def confirmation_account_name(message: Message, state: FSMContext):
     try:
         item_schedulers.add_job(func=item_update,
                                        trigger=IntervalTrigger(seconds=20),
-                                       args=(int(user_id), ),
+                                       args=[int(user_id), ],
                                        id=f'farm{user_id}')
         man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
                               args=[int(user_id)], id=f'farm_man{user_id}')
@@ -101,12 +101,13 @@ async def confirmation_account_name(message: Message, state: FSMContext):
         man_scheduler.remove_job(job_id=f'farm_man{user_id}')
         item_schedulers.add_job(func=item_update,
                                        trigger=IntervalTrigger(seconds=20),
-                                       args=(int(user_id), ),
+                                       args=[int(user_id), ],
                                        id=f'farm{user_id}')
         man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
-                              args=(int(user_id)), id=f'farm_man{user_id}')
+                              args=[int(user_id)], id=f'farm_man{user_id}')
     try:
         item_schedulers.start()
+        man_scheduler.start()
 
     except SchedulerAlreadyRunningError:
         logging.warn(f'Уже всё запущено')

@@ -19,6 +19,7 @@ async def delete_for_acc(callback: CallbackQuery):
     await sqlbase_choice.connect()
     await sqlbase_choice.execute_query("""DELETE FROM user_and_villagers_data WHERE user_id = $1""", (str(user_id), ))
     item_schedulers.remove_job(job_id=f'farm{user_id}')
+    await sqlbase_choice.connect_close()
     await callback.message.edit_text('Учётная запись успешно удалена! Введите /start')
 
 @router_choice.callback_query(InlineChoiceMenu.filter(F.regime=='cancel'))

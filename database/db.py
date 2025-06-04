@@ -52,7 +52,7 @@ class PostgresBase:
         '''
         CREATE TABLE IF NOT EXISTS user_and_villagers_data (
         Id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id TEXT UNIQUE NOT NULL,
         First_name TEXT NOT NULL,
         Village_name TEXT NOT NULL,
         Level INTEGER DEFAULT 1,
@@ -63,14 +63,11 @@ class PostgresBase:
         Villagers INTEGER DEFAULT 13,
         Villagers_busy INTEGER DEFAULT 5,
         count_new_villagers INTEGER DEFAULT 0,  
-        Homes INTEGER DEFAULT 9,
-        Stone_mines INTEGER DEFAULT 1,
-        Gold_mines INTEGER DEFAULT 1,
-        Ranches INTEGER DEFAULT 0,
         Storages INTEGER DEFAULT 1
         );
         '''
         )
+
 
     async def create_table_limits(self):
         await self.execute_query("""CREATE TABLE IF NOT EXISTS table_limits (
@@ -83,6 +80,19 @@ class PostgresBase:
                                 storage INTEGER DEFAULT 3,
                                 villages INTEGER DEFAULT 20,
                                 count_storage INTEGER DEFAULT 100);
+                                """)
+
+    async def create_table_limit_const(self):
+        await self.execute_query("""CREATE TABLE IF NOT EXISTS limit_for_construction 
+                                (
+                                Id SERIAL PRIMARY KEY,
+                                type_construction TEXT NOT NULL,
+                                tier INTEGER NOT NULL, 
+                                limit_stone INTEGER DEFAULT 18,
+                                limit_gold INTEGER DEFAULT 6,
+                                limit_village INTEGER DEFAULT 0,
+                                limit_food INTEGER DEFAULT 0
+                                );
                                 """)
 
     async def insert_default(self, user_id: int, first_name: str, village_name: str, message_id: int) -> None:
@@ -106,7 +116,6 @@ if __name__ == "__main__":
     async def dav():
         db = PostgresBase()
         await db.connect()
-        await db.create_user_data()
 
         # await db.insert_default(12, 'Тест', 'Есс')
         await db.connect_close()

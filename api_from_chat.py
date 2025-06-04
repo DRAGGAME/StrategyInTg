@@ -19,7 +19,7 @@ def chat_with_model(token, url):
       "messages": [
         {
           "role": "user",
-          "content": "Why is the sky blue?"
+          "content": "Как дела?"
         }
       ]
     }
