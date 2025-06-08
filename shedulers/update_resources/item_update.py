@@ -11,22 +11,50 @@ async def item_update(user_id: int):
 
     try:
         user_id = str(user_id)
-        all_about_resources = await sqlbase_for_stone.execute_query("""SELECT stone, gold, food, stone_mines, gold_mines,
-                                                                    ranches, storages, level, villagers
-                                                                    FROM user_and_villagers_data WHERE user_id = $1""",
+
+        production = await sqlbase_for_stone.execute_query("""SELECT production FROM about_constructions ORDER BY id ASC""")
+
+        all_about_resources = await sqlbase_for_stone.execute_query("""SELECT stone, gold, food, 
+        
+                                                                        gold_mines_one,
+                                                                        gold_mines_two,
+                                                                        gold_mines_three,
+                                                                        gold_mines_four,
+                                                                        gold_mines_five,
+                                                                             
+                                                                        stone_mines_one,
+                                                                        stone_mines_two,
+                                                                        stone_mines_three,
+                                                                        stone_mines_four,
+                                                                        stone_mines_five,
+                                                                        
+                                                                        ranches_one,
+                                                                        ranches_two,
+                                                                        ranches_three,
+                                                                        ranches_four,
+                                                                        ranches_five,
+                                                                        
+                                                                        storages, level, villagers
+                                                                        
+                                                                        FROM user_and_villagers_data
+                                                                        
+                                                                        INNER JOIN gold_mines_table ON user_and_villagers_data.user_id = gold_mines_table.user_id
+                                                                        INNER JOIN stone_mines_table ON user_and_villagers_data.user_id = stone_mines_table.user_id
+                                                                        INNER JOIN ranches_table ON user_and_villagers_data.user_id = ranches_table.user_id
+                                                                        
+                                                                        WHERE user_and_villagers_data.user_id = $1 AND 
+                                                                        gold_mines_table.user_id = $1 AND 
+                                                                        stone_mines_table.user_id = $1 AND 
+                                                                         ranches_table.user_id = $1""",
                                                             (user_id, ))
-        count_for_level = await sqlbase_for_stone.execute_query("""SELECT count(*) FROM table_limits;""")
+
         level = int(all_about_resources[0][-2])
-        for multiplication in range(count_for_level[0][0] + 1, 1, -1):
 
-            if level >= multiplication * 10 and count_for_level[0][0] >= multiplication:
-                level = multiplication * 10
-                break
-            elif level < 10:
-                level = 1
-                break
-
-
+        count_for_level = await sqlbase_for_stone.execute_query("""SELECT count(*) FROM table_limits;""")
+        if level < 10:
+            level = 1
+        else:
+            level = min((level // 10) * 10, count_for_level[0][0] * 10)
         limit = await sqlbase_for_stone.execute_query("""SELECT count_storage FROM table_limits 
                                                                 WHERE level = $1""",
                                                                 (level, ))
@@ -40,29 +68,31 @@ async def item_update(user_id: int):
         count_stone = all_about_resources[0][0]
         count_gold = all_about_resources[0][1]
         count_food = all_about_resources[0][2]
-        count_stone_mines = all_about_resources[0][3]
-        count_gold_mines = all_about_resources[0][4]
-        count_food_ranches = all_about_resources[0][5]
-        count_storage = all_about_resources[0][6]
+        count_storage = all_about_resources[0][-3]
 
         print(f'Количество камня: {count_stone}\n'
               f'Количество золота: {count_gold}\n'
-              f'Количество еды: {count_food}\n'
-              f'Количество каменных шахт: {count_stone_mines}\n'
-              f'Количество золотых шахт: {count_gold_mines}\n'
-              f'Количество ферм: {count_food_ranches}')
+              f'Количество еды: {count_food}')
 
         if count_storage != 0:
             limit = count_storage*limit_count_storage # Высчитываем лимит хранилища
             print(f'Лимит хранилища - {limit}')
 
-            first_count_stone = 4 * count_stone_mines + count_stone
-            first_count_gold = 2 * count_gold_mines + count_gold
-            first_count_food = 2 * count_food_ranches + count_food
+            first_count_gold = (all_about_resources[0][-18]*production[0][0] + all_about_resources[0][-17]*production[1][0] +
+                                all_about_resources[0][-16]*production[2][0] + all_about_resources[0][-15]*production[3][0] +
+                                all_about_resources[0][-14]*production[4][0]) + count_gold
 
-            print(f'Количество камня для добавления - {1 * count_stone_mines}. Всего: {1 * count_stone_mines+count_stone}')
-            print(f'Количество золота для добавления - {2 * count_gold_mines}. Всего: {1 * count_gold_mines+count_gold}')
-            print(f'Количество еды для добавления - {1 * count_food_ranches}. Всего: {1 * count_food_ranches+count_food}')
+            first_count_stone = (all_about_resources[0][-13]*production[5][0] + all_about_resources[0][-12]*production[6][0] +
+                                all_about_resources[0][-11]*production[7][0] + all_about_resources[0][-10]*production[8][0] +
+                                all_about_resources[0][-9]*production[9][0]) + count_stone
+
+            first_count_food = (all_about_resources[0][-8]*production[10][0] + all_about_resources[0][-7]*production[11][0] +
+                                all_about_resources[0][-6]*production[12][0] + all_about_resources[0][-5]*production[13][0] +
+                                all_about_resources[0][-4]*production[14][0]) + count_food
+
+            print(f'Всего: {first_count_gold}')
+            print(f'Всего: {first_count_stone}')
+            print(f'Всего: {first_count_food}')
 
             if first_count_stone > limit:
                 first_count_stone = limit
@@ -82,13 +112,14 @@ async def item_update(user_id: int):
         else:
             logging.info('Хранилища не существует')
 
-            await bot.send_message(user_id=user_id, text='У вас отсутствуют хранилища. Склады переполнены')
+            logging.info('У вас отсутствуют хранилища. Склады переполнены')
+        await sqlbase_for_stone.connect_close()
 
     except Exception as e:
         logging.error(f'Задача не работает. Ошибка: {e}')
         item_schedulers.remove_job(job_id=f'farm{user_id}')
-
-    await sqlbase_for_stone.connect_close()
+    finally:
+        pass
 
 
 

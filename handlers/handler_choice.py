@@ -1,11 +1,14 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.enums import ChatType
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message
 
 from database.db import PostgresBase
 from handlers.handler_add_man import router_add_man
-from kb.fabirc_kb import InlineChoiceGame, InlineChoiceMenu
+from kb.fabirc_kb import InlineChoiceGame, InlineChoiceMenu, InlineChoiceUpgrade
 from kb.kb_for_add_man import KbFactoryAddMan, InlineAddMan
 from kb.kb_menu import KbMenu, InlineChoiceBuild
+from kb.upgrade_kb import InlineUpgradeKb
 from shedulers.update_resources.scheduler_object import item_schedulers
 
 sqlbase_choice = PostgresBase()
@@ -26,7 +29,6 @@ async def delete_for_acc(callback: CallbackQuery):
 async def change_regime(callback: CallbackQuery):
     await sqlbase_choice.connect()
     inli = await kb_menus.builder_inline_choice_category()
-
     user_id = callback.message.chat.id
 
     data_all = await sqlbase_choice.execute_query('''SELECT first_name, village_name FROM user_and_villagers_data WHERE user_id = $1''',
@@ -51,8 +53,18 @@ async def press_run_in_game(callback: CallbackQuery):
 
 @router_choice.callback_query(InlineChoiceMenu.filter(F.regime=='build'))
 async def regime_build(callback: CallbackQuery):
-    kb = await kb_menus.inline_regime_build()
+    kb = await kb_menus.inline_regime_build(False, InlineChoiceBuild)
     await callback.message.edit_text('Выберите, что вы хотите построить', reply_markup=kb)
     await callback.answer()
+
+@router_choice.callback_query(InlineUpgradeKb.filter(F.confirm=='cancel' and F.level==0))
+@router_choice.callback_query(InlineChoiceMenu.filter(F.regime=='upgrade'))
+async def regime_build(callback: CallbackQuery, state: FSMContext):
+    kb = await kb_menus.inline_regime_build(True, InlineChoiceUpgrade)
+    await state.clear()
+    await callback.message.edit_text('Выберите, что вы хотите улучшить', reply_markup=kb)
+    await callback.answer()
+
+
 
 

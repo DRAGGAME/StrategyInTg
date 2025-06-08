@@ -5,6 +5,79 @@ from database.db import PostgresBase
 
 class BuildLimit(PostgresBase):
 
+    async def insert_limit(self, level: int,
+
+                            gold_mines_one: int,
+                            gold_mines_two: int,
+                            gold_mines_three: int,
+                            gold_mines_four: int,
+                            gold_mines_five: int,
+
+                            stone_mines_one: int,
+                            stone_mines_two: int,
+                            stone_mines_three: int,
+                            stone_mines_four: int,
+                            stone_mines_five: int,
+
+                            homes_one: int,
+                            homes_two: int,
+                            homes_three: int,
+                            homes_four: int,
+                            homes_five: int,
+
+                            ranches_one: int,
+                            ranches_too: int,
+                            ranches_three: int,
+                            ranches_four: int,
+                            ranches_five: int,
+
+                            storage: int,
+                            villages: int,
+                            count_storage: int
+
+    ):
+
+        await self.execute_query(
+            """
+            INSERT INTO table_limits (
+                                Level,
+                                
+                                gold_mines_one,
+                                gold_mines_two,
+                                gold_mines_three,
+                                gold_mines_four,
+                                gold_mines_five,
+                                
+                                stone_mines_one,
+                                stone_mines_two,
+                                stone_mines_three,
+                                stone_mines_four,
+                                stone_mines_five,
+                                
+                                homes_one,
+                                homes_two,
+                                homes_three,
+                                homes_four,
+                                homes_five,
+
+                                ranches_one,
+                                ranches_two,
+                                ranches_three,
+                                ranches_four,
+                                ranches_five,
+                                
+                                storage,
+                                villagers,
+                                count_storage)
+                                
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24);
+            """, (level,
+                  gold_mines_one, gold_mines_two, gold_mines_three, gold_mines_four, gold_mines_five,
+                  stone_mines_one, stone_mines_two, stone_mines_three, stone_mines_four, stone_mines_five,
+                  homes_one, homes_two, homes_three, homes_four, homes_five,
+                  ranches_one, ranches_too, ranches_three, ranches_four, ranches_five,
+                  storage, villages, count_storage))
+
     async def insert_limit_level_one(self):
 
         await self.execute_query(
@@ -14,50 +87,30 @@ class BuildLimit(PostgresBase):
             """, (1, ))
 
     async def insert_limit_level_ten(self):
-
-        await self.execute_query(
-            """
-            INSERT INTO table_limits (
-            level,
-            gold_mines,
-            stone_mines,
-            homes,
-            ranches,
-            storage,
-            villages,
-            count_storage) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-            """, (10, 5, 6, 10, 3, 4, 22, 100))
+        await self.insert_limit(
+            10,
+            3, 1, 0, 0, 0,
+            4, 2, 0, 0, 0,
+            10, 10, 0, 0, 0,
+            6, 3, 0, 0, 0,
+            1, 30, 200
+        )
 
     async def insert_limit_level_twenty(self):
-        await self.execute_query(
-            """
-            INSERT INTO table_limits (
-            level,
-            gold_mines,
-            stone_mines,
-            homes,
-            ranches,
-            storage,
-            villages,
-            count_storage) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-            """, (20, 10, 10, 20, 6, 8, 50, 700))
+        await self.insert_limit(20,
+                                4, 2, 1, 0, 0,
+                                5, 2, 1, 0, 0,
+                                20, 10, 0, 0, 0,
+                                6, 2, 1, 0, 0,
+                                1, 50, 500)
 
     async def insert_limit_level_thirty(self):
-        await self.execute_query(
-            """
-            INSERT INTO table_limits (
-            level,
-            gold_mines,
-            stone_mines,
-            homes,
-            ranches,
-            storage,
-            villages,
-            count_storage) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-            """, (30, 10, 10, 49, 6, 8, 100, 1000))
+        await self.insert_limit(30,
+                                4, 2, 1, 1, 0,
+                                3, 4, 1, 0, 0,
+                                10, 20, 0, 0, 0,
+                                6, 2, 3, 0, 0,
+                                1, 50, 1000)
 
 if __name__ == '__main__':
     async def create_limits():
@@ -82,5 +135,6 @@ if __name__ == '__main__':
             await db.insert_limit_level_twenty()
             await db.insert_limit_level_thirty()
         await db.connect_close()
+
 
     asyncio.run(create_limits())

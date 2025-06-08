@@ -1,6 +1,9 @@
 import asyncio
 import logging
 
+from aiogram.enums import ChatType
+from aiogram.types import Message
+
 from database.create_table_for_user_data import TableForVillage
 from database.db import PostgresBase
 from database.insert_limit import BuildLimit
@@ -11,11 +14,11 @@ from shedulers.manns_update.update_mans import update_man
 from shedulers.update_resources.item_update import item_update
 
 from shedulers.update_resources.scheduler_object import item_schedulers
-from aiogram import Dispatcher
+from aiogram import Dispatcher, F
 from apscheduler.triggers.interval import IntervalTrigger
 
 from config import bot
-from handlers import create_village, handler_choice, build_handler
+from handlers import create_village, handler_choice, build_handler, upgrade_handler
 
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(asctime)s] #%(levelname)-4s %(filename)s:'
@@ -23,7 +26,14 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 dp = Dispatcher()
-dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router, router_add_man)
+dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router, router_add_man, upgrade_handler.upgrade_router)
+
+# @dp.channel_post(F)
+# async def on_channel_message(message: Message):
+#     print("📨 Сообщение из канала:")
+#     print(f"Название канала: {message.chat.title}")
+#     print(f"Текст: {message.text}")
+#     print(message.date)
 
 async def main():
     """
@@ -46,24 +56,23 @@ async def main():
 
         await db_limits.connect()
         count = await db_limits.execute_query('''SELECT id FROM table_limits''')
-
         len_count = len(count)
 
         if len_count == 1:
             await db_limits.insert_limit_level_ten()
             await db_limits.insert_limit_level_twenty()
             await db_limits.insert_limit_level_thirty()
-        elif len_count == 2:
+        if len_count == 2:
             await db_limits.insert_limit_level_twenty()
             await db_limits.insert_limit_level_thirty()
-
-        elif count == 3:
+        if len_count == 3:
             await db_limits.insert_limit_level_thirty()
-        else:
+        if len_count == 0:
             await db_limits.insert_limit_level_one()
             await db_limits.insert_limit_level_ten()
             await db_limits.insert_limit_level_twenty()
             await db_limits.insert_limit_level_thirty()
+
 
         await db_limits.connect_close()
 
@@ -71,7 +80,9 @@ async def main():
         res_db = ResourcesForConstruct()
 
         await res_db.connect()
-        await res_db.limit_resources_for_construct()
+        count = await res_db.execute_query('''SELECT count(*) FROM about_constructions''')
+        if count[0][0] == 0:
+            await res_db.limit_resources_for_construct()
 
         user_ids = await res_db.execute_query('''SELECT user_id FROM user_and_villagers_data''')
 

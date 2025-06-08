@@ -1,3 +1,5 @@
+from xmlrpc.client import FastParser
+
 from aiogram import Router, F
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.callback_data import CallbackData
@@ -11,15 +13,15 @@ build_router = Router()
 build_kb_menu = KbMenu()
 sqlbase_build = PostgresBase()
 
-@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='gold_mine'))
+@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='gold_mines'))
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
-    decision, first_count_gold_mines = await update_res(sqlbase_build, 'gold_mines', user_id)
+    decision, first_count_gold_mines = await update_res(sqlbase_build, 'gold_mines', 1, user_id)
     await sqlbase_build.connect_close()
 
     try:
-        kb = await build_kb_menu.inline_regime_build()
+        kb = await build_kb_menu.inline_regime_build(False, InlineChoiceBuild)
         if decision == 'count_error':
             await callback.message.edit_text(
                 f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_gold_mines}'
@@ -51,15 +53,15 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
 
     await callback.answer()
 
-@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='stone_mine'))
+@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='stone_mines'))
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
-    decision, first_count_stone_mines = await update_res(sqlbase_build, "stone_mines", user_id)
+    decision, first_count_stone_mines = await update_res(sqlbase_build, "stone_mines", 1, user_id)
     await sqlbase_build.connect_close()
 
     try:
-        kb = await build_kb_menu.inline_regime_build()
+        kb = await build_kb_menu.inline_regime_build(False, InlineChoiceBuild)
 
         if decision == 'count_error':
             await callback.message.edit_text(
@@ -94,15 +96,15 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
 
     await callback.answer()
 
-@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='ranch'))
+@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='ranches'))
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
-    decision, first_count_ranch = await update_res(sqlbase_build, 'ranches', user_id)
+    decision, first_count_ranch = await update_res(sqlbase_build, 'ranches', 1, user_id)
 
     await sqlbase_build.connect_close()
     try:
-        kb = await build_kb_menu.inline_regime_build()
+        kb = await build_kb_menu.inline_regime_build(False, InlineChoiceBuild)
         if decision == 'count_error':
             await callback.message.edit_text(
                 f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_ranch}'
@@ -144,15 +146,15 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
 
     await callback.answer()
 
-@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='home'))
+@build_router.callback_query(InlineChoiceBuild.filter(F.construction=='homes'))
 async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBuild):
     await sqlbase_build.connect()
     user_id = callback.message.chat.id
-    decision, first_count_ranch = await update_res(sqlbase_build, 'homes', user_id)
+    decision, first_count_ranch = await update_res(sqlbase_build, 'homes', 1, user_id)
     await sqlbase_build.connect_close()
 
     try:
-        kb = await build_kb_menu.inline_regime_build()
+        kb = await build_kb_menu.inline_regime_build(False, InlineChoiceBuild)
         if decision == 'count_error':
             await callback.message.edit_text(
                 f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\nОбщее количество построек: {first_count_ranch}'

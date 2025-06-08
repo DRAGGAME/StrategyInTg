@@ -1,3 +1,4 @@
+from sys import prefix
 from typing import Union
 
 from aiogram.filters.callback_data import CallbackData
@@ -17,6 +18,9 @@ class InlineChoiceBuild(CallbackData, prefix='build_change'):
     construction: str
     # phrase: str
 
+
+class InlineChoiceUpgrade(InlineChoiceBuild, prefix='upgrade_change'):
+    construction: str
 
 
 class KeyboardFactory:

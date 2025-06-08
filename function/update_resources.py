@@ -1,17 +1,62 @@
+import asyncio
+
 from aiohttp import streamer
 
 from database.db import PostgresBase
 
-async def update_res(sqlbase: PostgresBase, type_build: str, user_id: int):
-    all_about_resources = await sqlbase.execute_query(f"""SELECT stone, gold, Villagers, Villagers_busy, food, {type_build}, level
-                                                                FROM user_and_villagers_data WHERE user_id = $1""",
-                                                                (str(user_id), ))
+level_string = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five'
 
-    limits_for_construction = await sqlbase.execute_query("""SELECT limit_stone, limit_gold, limit_village, limit_food FROM limit_for_construction
-     WHERE type_construction = $1;""", (type_build, ))
+}
 
-    limits = await sqlbase.execute_query(f'''SELECT {type_build} FROM table_limits WHERE level = $1''',
-                                         (all_about_resources[0][-1],))
+async def update_res(sqlbase: PostgresBase, type_build: str, tier: int, user_id: int) -> (str, int):
+    last_tier = ''
+    if tier-1 == 0:
+        upgrade = False
+        this_tier = level_string.get(int(tier))
+
+    else:
+        upgrade = True
+        this_tier = level_string.get(int(tier))
+        last_tier = level_string.get(int(tier-1))
+
+    all_about_resources = await sqlbase.execute_query(f"""SELECT stone, gold, Villagers, Villagers_busy, food, level, 
+                                                                {f'{type_build}_{last_tier}, ' if upgrade else ''}
+                                                                {type_build}_{this_tier},
+                                                                {type_build}_one,
+                                                                {type_build}_two,
+                                                                {type_build}_three,
+                                                                {type_build}_four,
+                                                                {type_build}_five
+                                                                FROM user_and_villagers_data JOIN {type_build}_table 
+                                                                ON {type_build}_table.user_id=user_and_villagers_data.user_id  
+                                                                WHERE user_and_villagers_data.user_id = $1 AND {type_build}_table.user_id = $1;""",
+                                                      (str(user_id), ))
+
+    count_for_level = await sqlbase.execute_query(f"""SELECT count(*) FROM table_limits;""")
+
+    level = all_about_resources[0][5]
+    if level < 10:
+        level = 1
+    else:
+        level = min((level // 10) * 10, count_for_level[0][0] * 10)
+
+    limits_for_construction = await sqlbase.execute_query("""SELECT limit_stone, limit_gold, limit_village, limit_food FROM about_constructions
+     WHERE type_construction = $1;""", (f'{type_build}_{this_tier}', ))
+    print(level)
+    limits = await sqlbase.execute_query(f'''SELECT 
+                                                {type_build}_one, 
+                                                {type_build}_two,
+                                                {type_build}_three,
+                                                {type_build}_four, 
+                                                {type_build}_five,
+                                                {type_build}_{this_tier}
+                                                FROM table_limits WHERE level = $1''',
+                                         (level,))
 
 
     limit_stone = limits_for_construction[0][0]
@@ -24,7 +69,9 @@ async def update_res(sqlbase: PostgresBase, type_build: str, user_id: int):
     count_village = all_about_resources[0][2]
     count_village_busy = all_about_resources[0][3]
     count_food = all_about_resources[0][4]
-    count_build = all_about_resources[0][5]
+    count_build = all_about_resources[0][-1] + all_about_resources[0][-2] + all_about_resources[0][-3] + all_about_resources[0][-4] + all_about_resources[0][-5]
+    about_count_build = all_about_resources[0][-6]
+    about_last_count_build = all_about_resources[0][-7]
 
     first_count_stone = count_stone - limit_stone
     first_count_gold = count_gold - limit_gold
@@ -33,9 +80,16 @@ async def update_res(sqlbase: PostgresBase, type_build: str, user_id: int):
     first_count_food = count_food - limit_food
     first_count = count_build
 
-    if first_count + 1 > limits[0][0]:
 
-      return 'count_error', first_count
+    if about_last_count_build == 0:
+        return 'about_last_count_error', first_count
+
+    elif about_count_build + 1 > limits[0][-1]:
+        return 'about_count_error', first_count
+
+    elif first_count + 1 > limits[0][0] + limits[0][1] + limits[0][2] + limits[0][3] + limits[0][4]:
+
+        return 'count_error', first_count
 
     elif first_count_village < 0:
 
@@ -54,8 +108,16 @@ async def update_res(sqlbase: PostgresBase, type_build: str, user_id: int):
         return 'food_error', first_count
 
     else:
-        first_count += 1
+        about_count_build += 1
 
         await sqlbase.update_user_data(first_count_stone, first_count_gold, first_count_village, first_count_village_busy,
-                                             first_count, first_count_food, type_build, user_id)
-        return 'not_error', first_count
+                                             about_count_build, first_count_food, type_build, this_tier, last_tier, user_id)
+        return 'not_error', about_count_build
+
+if __name__ == '__main__':
+    async def test():
+        sq = PostgresBase()
+        await sq.connect()
+        await update_res(sq, 'gold_mines', 2005683766)
+        await sq.connect_close()
+    asyncio.run(test())
