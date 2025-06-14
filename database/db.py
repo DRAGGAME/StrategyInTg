@@ -133,7 +133,7 @@ class PostgresBase:
 
     async def update_user_data(self, count_stone: int, count_gold: int, count_villages: int, count_village_busy: int,
                                count_mine: int,count_food: int,
-                               type_build: str, this_tier: str, last_tier: str, user_id: int):
+                               type_build: str, this_tier: str, last_tier: str, user_id: int) -> None:
         user_id = str(user_id)
         await self.execute_query('''
             UPDATE user_and_villagers_data
@@ -160,6 +160,10 @@ class PostgresBase:
                 SET {type_build}_{this_tier} = $1
                 WHERE user_id = $2;
             ''', (count_mine, user_id))
+
+    async def select_resource(self, user_id: int) -> tuple:
+        result = await self.execute_query("""SELECT level, stone, gold, food, Villagers, Villagers_busy, message_id FROM user_and_villagers_data WHERE user_id = $1""",  (str(user_id), ))
+        return result
 
 if __name__ == "__main__":
     async def dav():

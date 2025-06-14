@@ -30,7 +30,7 @@ async def upgrade_builder(callback: CallbackQuery, callback_data: InlineChoiceUp
     type_build = await state.get_value('construction')
 
     tier = callback_data.level
-    decision, first_count = await update_res(sqlbase_upgrade, type_build, tier+1, callback.message.chat.id)
+    decision, first_count, item_info = await update_res(sqlbase_upgrade, type_build, tier+1, callback.message.chat.id)
     await sqlbase_upgrade.connect_close()
     try:
         kb = await build_kb_menu.inline_regime_build(True, InlineChoiceUpgrade)

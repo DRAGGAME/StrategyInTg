@@ -4,6 +4,7 @@ import logging
 from aiogram.enums import ChatType
 from aiogram.types import Message
 
+import handlers.statics_handler
 from database.create_table_for_user_data import TableForVillage
 from database.db import PostgresBase
 from database.insert_limit import BuildLimit
@@ -26,7 +27,8 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 dp = Dispatcher()
-dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router, router_add_man, upgrade_handler.upgrade_router)
+dp.include_routers(create_village.router_create, handler_choice.router_choice, build_handler.build_router,
+                   router_add_man, upgrade_handler.upgrade_router, handlers.statics_handler.router_of_static)
 
 # @dp.channel_post(F)
 # async def on_channel_message(message: Message):
@@ -90,7 +92,7 @@ async def main():
             for user_id in user_ids:
                 item_schedulers.add_job(func=item_update,
                                         trigger=IntervalTrigger(seconds=20),
-                                        args=(int(user_id[0]), ),
+                                        args=[int(user_id[0]), ],
                                         id=f'farm{user_id[0]}')
                 man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
                                       args=(int(user_id[0]), ), id=f'farm_man{user_id[0]}')

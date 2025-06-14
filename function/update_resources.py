@@ -1,6 +1,5 @@
 import asyncio
 
-from aiohttp import streamer
 
 from database.db import PostgresBase
 
@@ -39,11 +38,11 @@ async def update_res(sqlbase: PostgresBase, type_build: str, tier: int, user_id:
 
     count_for_level = await sqlbase.execute_query(f"""SELECT count(*) FROM table_limits;""")
 
-    level = all_about_resources[0][5]
-    if level < 10:
+    this_level = all_about_resources[0][5]
+    if this_level < 10:
         level = 1
     else:
-        level = min((level // 10) * 10, count_for_level[0][0] * 10)
+        level = min((this_level // 10) * 10, count_for_level[0][0] * 10)
 
     limits_for_construction = await sqlbase.execute_query("""SELECT limit_stone, limit_gold, limit_village, limit_food FROM about_constructions
      WHERE type_construction = $1;""", (f'{type_build}_{this_tier}', ))
@@ -79,45 +78,48 @@ async def update_res(sqlbase: PostgresBase, type_build: str, tier: int, user_id:
     first_count_village_busy = limit_village + count_village_busy
     first_count_food = count_food - limit_food
     first_count = count_build
+    resources_info = [this_level, first_count_stone, first_count_gold, first_count_food, first_count_village, first_count_village_busy, first_count_village+first_count_village_busy]
+    for num, resource in enumerate(resources_info):
+        if resource < 0:
+            resources_info[num] = 0
 
 
     if about_last_count_build == 0:
-        return 'about_last_count_error', first_count
+        return 'about_last_count_error', first_count, resources_info
 
     elif about_count_build + 1 > limits[0][-1]:
-        return 'about_count_error', first_count
+        return 'about_count_error', first_count, resources_info
 
     elif first_count + 1 > limits[0][0] + limits[0][1] + limits[0][2] + limits[0][3] + limits[0][4]:
 
-        return 'count_error', first_count
+        return 'count_error', first_count, resources_info
 
     elif first_count_village < 0:
 
-        return 'village_error', first_count
+        return 'village_error', first_count, resources_info
 
     elif first_count_stone < 0:
 
-        return 'stone_error', first_count
+        return 'stone_error', first_count, resources_info
 
     elif first_count_gold < 0:
 
-        return 'gold_error', first_count
+        return 'gold_error', first_count, resources_info
 
     elif first_count_food < 0:
 
-        return 'food_error', first_count
+        return 'food_error', first_count, resources_info
 
     else:
         about_count_build += 1
 
         await sqlbase.update_user_data(first_count_stone, first_count_gold, first_count_village, first_count_village_busy,
                                              about_count_build, first_count_food, type_build, this_tier, last_tier, user_id)
-        return 'not_error', about_count_build
+        return 'not_error', about_count_build, resources_info
 
 if __name__ == '__main__':
     async def test():
         sq = PostgresBase()
         await sq.connect()
-        await update_res(sq, 'gold_mines', 2005683766)
         await sq.connect_close()
     asyncio.run(test())
