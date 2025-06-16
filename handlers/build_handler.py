@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery
@@ -30,7 +31,35 @@ async def build_gold_mine(callback: CallbackQuery, callback_data: InlineChoiceBu
         villagers_busy_info = item_info[5]
 
         all_villagers_info = item_info[6]
-        if decision == 'count_error':
+
+        if decision == 'about_count_error':
+            await callback.message.edit_text(
+                f'Зданий этого <b>уровня</b> слишком много! Повысьте уровень для возможности увелечения их количества.\nПовысьте уровень для возможности увелечения их количества.\n'
+                                            f'Ваш уровень: {level_info}\n'                           
+                                             f'Золото: {gold_info}\n'
+                                             f'Камень: {stone_info}\n'
+                                             f'Еда: {food_info}\n'
+                                             f'Свободные жители: {villagers_info}\n'
+                                             f'Занятые жители: {villagers_busy_info}\n'
+                                             f'Все жители: {all_villagers_info}\n'
+                                             f'Количество построек этого типа и уровня: {first_count_gold_mines}\n', reply_markup=kb, parse_mode=ParseMode.HTML)
+            return
+
+        elif decision == 'about_last_count_error':
+            await callback.message.edit_text(
+                f'Нечего улучшать! Постройте или улучшите здание, чтобы улучшить до этого уровня\nПовысьте уровень для возможности увелечения их количества.\n'
+                                            f'Ваш уровень: {level_info}\n'                           
+                                             f'Золото: {gold_info}\n'
+                                             f'Камень: {stone_info}\n'
+                                             f'Еда: {food_info}\n'
+                                             f'Свободные жители: {villagers_info}\n'
+                                             f'Занятые жители: {villagers_busy_info}\n'
+                                             f'Все жители: {all_villagers_info}\n'
+                                             f'Количество построек этого типа и уровня: {first_count_gold_mines}\n'
+                f'\nВыберите, что вы хотите построить', reply_markup=kb)
+            return
+
+        elif decision == 'count_error':
             await callback.message.edit_text(
                 f'Зданий слишком много! Повысьте уровень для возможности увелечения их количества.\n'
                                             f'Ваш уровень: {level_info}\n'                           

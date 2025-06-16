@@ -19,9 +19,9 @@ async def man_for_minus_two(callback: CallbackQuery, callback_data: InlineAddMan
 
     await sqlbase_add_man.connect()
     user_id = callback.message.chat.id
-    count = await state.get_value('count')
     user_data = await sqlbase_add_man.execute_query("""SELECT villagers, villagers_busy, count_new_villagers FROM user_and_villagers_data WHERE user_id = $1""",
                                     (str(user_id), ))
+    count = await state.get_value('count')
 
     slices_count = callback_data.confirm
     if count is None:

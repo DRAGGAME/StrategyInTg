@@ -8,10 +8,14 @@ class InlineStaticKeyboard(CallbackData, prefix='static_kb'):
     static_info: str
 
 
+class InlineRegimeInfo(CallbackData, prefix='Regime_info'):
+    regime_state: str
+
+
 class StaticKeyboard(KeyboardFactory):
 
     cancel_button = InlineKeyboardButton(
-        text='Назад',
+        text='Обратно',
         callback_data=InlineStaticKeyboard(
             static_info='cancel',
         ).pack()
@@ -46,3 +50,24 @@ class StaticKeyboard(KeyboardFactory):
 
         return self.builder_inline.as_markup()
 
+    async def static_keyboard_two(self):
+        await self.create_builder_inline()
+
+        back_button = InlineKeyboardButton(
+            text=f'Назад',
+            callback_data=InlineRegimeInfo(
+                regime_state='back',
+            ).pack()
+        )
+
+        next_button = InlineKeyboardButton(
+            text=f'Вперёд',
+            callback_data=InlineRegimeInfo(
+                regime_state='next',
+        ).pack()
+        )
+
+        self.builder_inline.add(back_button, next_button)
+        self.builder_inline.row(self.cancel_button)
+
+        return self.builder_inline.as_markup()

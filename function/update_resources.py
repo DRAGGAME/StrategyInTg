@@ -78,7 +78,7 @@ async def update_res(sqlbase: PostgresBase, type_build: str, tier: int, user_id:
     first_count_village_busy = limit_village + count_village_busy
     first_count_food = count_food - limit_food
     first_count = count_build
-    resources_info = [this_level, first_count_stone, first_count_gold, first_count_food, first_count_village, first_count_village_busy, first_count_village+first_count_village_busy]
+    resources_info = [this_level, first_count_gold, first_count_stone, first_count_food, first_count_village, first_count_village_busy, first_count_village+first_count_village_busy]
     for num, resource in enumerate(resources_info):
         if resource < 0:
             resources_info[num] = 0

@@ -162,8 +162,29 @@ class PostgresBase:
             ''', (count_mine, user_id))
 
     async def select_resource(self, user_id: int) -> tuple:
-        result = await self.execute_query("""SELECT level, stone, gold, food, Villagers, Villagers_busy, message_id FROM user_and_villagers_data WHERE user_id = $1""",  (str(user_id), ))
+        result = await self.execute_query("""SELECT level, 
+        stone, 
+        gold, 
+        food, 
+        Villagers, 
+        Villagers_busy, 
+        message_id 
+        FROM user_and_villagers_data WHERE user_id = $1""",  (str(user_id), ))
         return result
+
+    async def select_builders(self, user_id: int, type_build: str) -> tuple:
+        user_id = str(user_id)
+        result = await self.execute_query(f"""SELECT {type_build}_one, 
+                        {type_build}_two, 
+                        {type_build}_three, 
+                        {type_build}_four, 
+                        {type_build}_five
+                        FROM {type_build}_table WHERE user_id=$1""", (user_id, ))
+
+        result_new = (result[0][0], result[0][1], result[0][2], result[0][3], result[0][4],
+                      result[0][0] + result[0][1] + result[0][2] + result[0][3] + result[0][4])
+
+        return result_new
 
 if __name__ == "__main__":
     async def dav():
