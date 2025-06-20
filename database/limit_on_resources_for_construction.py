@@ -35,6 +35,12 @@ class ResourcesForConstruct(PostgresBase):
         await self.query_for_insert('homes_four', 4, 100, 40, 0, 20, 0)
         await self.query_for_insert('homes_five', 5, 400, 100, 0, 40, 0)
 
+        await self.query_for_insert('barracks_one', 1, 60, 10, 0, 20, 0)
+        await self.query_for_insert('barracks_one', 2, 400, 100, 0, 40, 0)
+        await self.query_for_insert('barracks_one', 3, 400, 100, 0, 40, 0)
+        await self.query_for_insert('barracks_one', 4, 400, 100, 0, 40, 0)
+        await self.query_for_insert('barracks_one', 5, 400, 100, 0, 40, 0)
+    
 
         #
         # await self.execute_query("""INSERT INTO limit_for_construction (type_construction, tier, limit_stone, limit_gold, limit_village)

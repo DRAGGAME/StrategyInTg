@@ -95,7 +95,7 @@ async def main():
                                         args=[int(user_id[0]), ],
                                         id=f'farm{user_id[0]}')
                 man_scheduler.add_job(func=update_man, trigger=IntervalTrigger(seconds=20),
-                                      args=(int(user_id[0]), ), id=f'farm_man{user_id[0]}')
+                                      args=[int(user_id[0]), ], id=f'farm_man{user_id[0]}')
 
             man_scheduler.start()
             item_schedulers.start()
@@ -107,6 +107,6 @@ async def main():
     finally:
         item_schedulers.shutdown(wait=False)
         man_scheduler.shutdown(wait=False)
-
+        
 if __name__ == '__main__':
     asyncio.run(main())

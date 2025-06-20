@@ -31,6 +31,12 @@ class BuildLimit(PostgresBase):
                             ranches_four: int,
                             ranches_five: int,
 
+                            barracks_one: int,
+                            barracks_two: int,
+                            barracks_three: int,
+                            barracks_four: int,
+                            barracks_five: int,
+                            
                             storage: int,
                             villages: int,
                             count_storage: int
@@ -66,6 +72,12 @@ class BuildLimit(PostgresBase):
                                 ranches_four,
                                 ranches_five,
                                 
+                                barracks_one,
+                                barracks_two,
+                                barracks_three,
+                                barracks_four,
+                                barracks_five,
+
                                 storage,
                                 villagers,
                                 count_storage)
@@ -76,6 +88,7 @@ class BuildLimit(PostgresBase):
                   stone_mines_one, stone_mines_two, stone_mines_three, stone_mines_four, stone_mines_five,
                   homes_one, homes_two, homes_three, homes_four, homes_five,
                   ranches_one, ranches_too, ranches_three, ranches_four, ranches_five,
+                  barracks_one, barracks_two, barracks_three, barracks_four, barracks_five,
                   storage, villages, count_storage))
 
     async def insert_limit_level_one(self):
